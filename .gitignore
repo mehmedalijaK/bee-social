@@ -1,0 +1,100 @@
+# --- IntelliJ IDEA / JetBrains files ---
+# Project settings
+/.idea/
+/*.iws
+/*.iml
+/*.ipr
+
+# IntelliJ workspace and module files
+# (the above covers most variants; adjust if you have custom module files)
+
+# --- Java build output ---
+/out/
+/build/
+/target/
+
+# --- Gradle wrapper and caches (if using Gradle) ---
+.gradle/
+/**/build/
+/gradle-wrapper.jar
+/gradle-wrapper.properties
+
+# --- Maven output and wrapper (if using Maven) ---
+/mvnw
+/mvnw.cmd
+/.mvn/
+/target/
+
+# --- Eclipse files (in case someone opens in Eclipse) ---
+.metadata/
+/.classpath
+.project
+.settings/
+
+# --- NetBeans files (if ever opened there) ---
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/*.nbattrs
+
+# --- OS-specific files ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+# Linux
+*~
+
+# --- Logs and temporary files ---
+*.log
+*.tmp
+*.temp
+
+# --- IDE-independent caches and scratch files ---
+/*.class
+/*.jar
+/*.war
+/*.ear
+
+# --- Dependency directories (if not covered by build tool) ---
+/lib/
+/dependencies/
+
+# --- Java-specific ###
+# Compiled bytecode
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Generated sources (e.g., JHipster, Lombok, etc.)
+/target/generated-sources/
+/build/generated-sources/
+/out/production/
+/out/test/
+/generated/
+
+# --- Certificate and keystore files (if any) ---
+*.jks
+*.keystore
+*.p12
+
+# --- Environment and IDE configs (sensitive) ###
+.env
+*.env
+secret.key
+keystore.properties
+
+# --- Other misc ###
+*.log
+hs_err_pid*
+
