@@ -111,18 +111,22 @@ public class SimpleServentListener implements Runnable, Cancellable {
 					break;
 				case UPLOAD_RESPONSE:
 					messageHandler = new UploadResponseHandler(clientMessage);
-                        break;
+					break;
 				case LEAVE:
 					messageHandler = new LeaveHandler(clientMessage);
-                        break;
+					break;
 				case REMOVE_FILE_RESPONSE:
 					messageHandler = new RemoveFilesResponseHandler(clientMessage);
-                        break;
+					break;
+				case SK_TOKEN_REQUEST:
+					messageHandler = new SKTokenRequestHandler(clientMessage);
+					break;
+				case SK_TOKEN:
+					messageHandler = new SKTokenHandler(clientMessage);
+					break;
 				default:
 					break;
                 }
-
-				
 				threadPool.submit(messageHandler);
 			} catch (SocketTimeoutException timeoutEx) {
 				//Uncomment the next line to see that we are waking up every second.

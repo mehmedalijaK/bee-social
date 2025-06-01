@@ -1,3 +1,4 @@
 pause 30000
+follow localhost:1400
 pause 10000
 stop

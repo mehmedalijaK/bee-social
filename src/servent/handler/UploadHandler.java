@@ -9,7 +9,8 @@ import servent.message.UploadMessage;
 import servent.message.UploadResponseMessage;
 import servent.message.util.MessageUtil;
 
-import java.util.concurrent.locks.Lock;
+import java.io.File;
+import java.io.IOException;
 
 public class UploadHandler implements MessageHandler {
 
@@ -21,93 +22,130 @@ public class UploadHandler implements MessageHandler {
 
     @Override
     public void run() {
-        // 1) Check that we got an UPLOAD message
         if (clientMessage.getMessageType() != MessageType.UPLOAD) {
             AppConfig.timestampedErrorPrint("UPLOAD handler got something that is not UPLOAD.");
             return;
         }
 
-        // 2) Extract the requester’s port
-        int requesterPort = clientMessage.getSenderPort();
+        // Cast to the correct message type to access specific fields
+        UploadMessage currentUploadMsg = (UploadMessage) clientMessage;
+        int originalRequesterActualPort = currentUploadMsg.getOriginalRequesterPort();
+        String relativeFilePath = currentUploadMsg.getFilePath();
 
-        // NOTE: Message interface does NOT have getSenderIpAddress().
-        //       We typically assume "localhost" for all internal Chord messages.
-        ServentInfo requesterInfo = new ServentInfo("localhost", requesterPort);
-
-        // 3) Acquire the distributed mutex
-        //    We stored a ReentrantLock in AppConfig, so .lock() does NOT throw InterruptedException.
-        Lock mutex = AppConfig.mutex;
-        mutex.lock();  // no try/catch needed here
+        // Local mutex is removed. Distributed Suzuki-Kasami mutex is handled by the original requester.
 
         try {
-            // 4) The messageText carries the relative path of the file to upload
-            String relativeFilePath = clientMessage.getMessageText().trim();
-
-            // 5) Compute the Chord key for this file
+            // Calculate Chord key based on the relative file path
+            // Note: Using String.hashCode() for Chord keys is simplistic and can lead to poor distribution.
+            // A more robust hashing function (like SHA-1, truncated) would be better in a real system.
             int key = ChordState.chordHash(relativeFilePath.hashCode());
-
-            // 6) Check if THIS node is responsible for storing 'key'
             boolean iStoreIt = AppConfig.chordState.isKeyMine(key);
 
             if (iStoreIt) {
-                // ─── We are the node responsible ───
-
-                // TODO: actually read the bytes from the UploadMessage (if you embed file‐bytes in it)
+                // This node is responsible for the file
                 AppConfig.timestampedStandardPrint(
-                        "Storing file \"" + relativeFilePath + "\" locally (key=" + key + ")."
+                        "Servent " + AppConfig.myServentInfo.getChordId() + " is responsible for file \"" +
+                                relativeFilePath + "\" (key=" + key + "). Attempting to store."
                 );
 
-                // TODO: replicate to successor and predecessor
-                // Example pseudocode:
-                // ServentInfo succ = AppConfig.chordState.getSuccessorTable()[0];
-                // byte[] fileBytes = ((UploadMessage) clientMessage).getFileBytes();
-                // ReplicaUploadMessage succReplica =
-                //     new ReplicaUploadMessage(
-                //         MessageType.UPLOAD_REPLICA,
-                //         AppConfig.myServentInfo.getListenerPort(),
-                //         succ.getListenerPort(),
-                //         relativeFilePath,
-                //         fileBytes
-                //     );
-                // MessageUtil.sendMessage(succReplica);
-                //
-                // Likewise for predecessor…
+                // Simulate actual file storage
+                // Create a unique directory for this servent if it doesn't exist
+                File serventDir = new File(AppConfig.workingDirectory);
+                if (!serventDir.exists()) {
+                    if (serventDir.mkdirs()) {
+                        AppConfig.timestampedStandardPrint("Created directory for servent " + AppConfig.myServentInfo.getChordId() + ": " + serventDir.getAbsolutePath());
+                    } else {
+                        AppConfig.timestampedErrorPrint("Failed to create directory for servent " + AppConfig.myServentInfo.getChordId() + ": " + serventDir.getAbsolutePath());
+                        // Send a failure response if directory creation fails, as storage will fail
+                        UploadResponseMessage response = new UploadResponseMessage(
+                                AppConfig.myServentInfo.getListenerPort(),
+                                originalRequesterActualPort, // Send response to the original requester
+                                "FAIL:Could not create storage directory for " + relativeFilePath
+                        );
+                        MessageUtil.sendMessage(response);
+                        return;
+                    }
+                }
 
-                // 6c) Send back an ACK to the original requester
+                File localFile = new File(serventDir, relativeFilePath);
+                boolean success = false;
+                try {
+                    // "Touch" the file to simulate creation/storage
+                    if (localFile.getParentFile() != null && !localFile.getParentFile().exists()) {
+                        localFile.getParentFile().mkdirs(); // Create parent subdirectories if specified in relativeFilePath
+                    }
+                    success = localFile.createNewFile(); // Creates the file if it doesn't exist
+                    if (success) {
+                        AppConfig.timestampedStandardPrint("Successfully stored/created file: " + localFile.getAbsolutePath());
+                    } else {
+                        // This might mean the file already exists. Overwriting could be an option.
+                        // For now, if createNewFile returns false, assume it's okay if it exists.
+                        if (localFile.exists()) {
+                            AppConfig.timestampedStandardPrint("File already exists, considered stored: " + localFile.getAbsolutePath());
+                            success = true; // Treat existing as success for this simulation
+                        } else {
+                            AppConfig.timestampedErrorPrint("Failed to create file (and it doesn't exist): " + localFile.getAbsolutePath());
+                        }
+                    }
+                } catch (IOException e) {
+                    AppConfig.timestampedErrorPrint("IOException during file storage for " + relativeFilePath + ": " + e.getMessage());
+                    success = false;
+                }
+
+                if (success) {
+                    // Simulate replication to successor and predecessor
+                    // TODO: Implement actual replication message sending (e.g., ReplicaUploadMessage)
+                    ServentInfo successor = AppConfig.chordState.getSuccessorTable()[0];
+                    ServentInfo predecessor = AppConfig.chordState.getPredecessor();
+
+                    if (successor != null && successor.getChordId() != AppConfig.myServentInfo.getChordId()) {
+                        AppConfig.timestampedStandardPrint("Simulating replication of " + relativeFilePath + " to successor: " + successor);
+                        // Example: Message replicaMsgToSucc = new ReplicaUploadMessage(..., successor.getPort(), filePath, fileBytes);
+                        // MessageUtil.sendMessage(replicaMsgToSucc);
+                    }
+                    if (predecessor != null && predecessor.getChordId() != AppConfig.myServentInfo.getChordId()) {
+                        AppConfig.timestampedStandardPrint("Simulating replication of " + relativeFilePath + " to predecessor: " + predecessor);
+                        // Example: Message replicaMsgToPred = new ReplicaUploadMessage(..., predecessor.getPort(), filePath, fileBytes);
+                        // MessageUtil.sendMessage(replicaMsgToPred);
+                    }
+                }
+
+                // Send response back to the original requester
+                String responsePayload = (success ? "OK:" : "FAIL:") + relativeFilePath;
                 UploadResponseMessage response = new UploadResponseMessage(
-                        MessageType.UPLOAD_RESPONSE,
-                        AppConfig.myServentInfo.getListenerPort(),  // sender = this node
-                        requesterPort,                              // receiver = original requester
-                        "OK:" + relativeFilePath                     // payload
+                        AppConfig.myServentInfo.getListenerPort(),
+                        originalRequesterActualPort, // Send response to the original requester
+                        responsePayload
                 );
                 MessageUtil.sendMessage(response);
+
             } else {
-                // ─── We are NOT responsible. Forward to the next hop ───
-
-                // 7a) Find the next node in the Chord ring
+                // This node is NOT responsible, forward the request
                 ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(key);
+                AppConfig.timestampedStandardPrint(
+                        "Servent " + AppConfig.myServentInfo.getChordId() + " is NOT responsible for file \"" +
+                                relativeFilePath + "\" (key=" + key + "). Forwarding to " + nextNode
+                );
 
-                // 7b) Forward an UPLOAD message to that node:
                 UploadMessage forwardMsg = new UploadMessage(
-                        MessageType.UPLOAD,                          // message type
-                        AppConfig.myServentInfo.getListenerPort(),   // now I am the sender
-                        nextNode.getListenerPort(),                  // forward to nextNode
-                        relativeFilePath                             // same payload
-                        // If UploadMessage carried file‐bytes, include them here as well
+                        AppConfig.myServentInfo.getListenerPort(),   // Current node is sender of this forwarded message
+                        nextNode.getListenerPort(),                  // Target is the next node
+                        originalRequesterActualPort,                 // Propagate original requester's port
+                        relativeFilePath                             // Propagate the file path
                 );
                 MessageUtil.sendMessage(forwardMsg);
-
-                // 7c) Do NOT unlock here—only unlock once the responsible node replies with UPLOAD_RESPONSE.
-                return;
             }
-        } finally {
-            // 6d) Release the mutex if we actually stored the file ourselves.
-            //     In the forwarding case, we returned above and never come here.
-            if (AppConfig.chordState.isKeyMine(
-                    ChordState.chordHash(clientMessage.getMessageText().trim().hashCode())
-            )) {
-                mutex.unlock();
-            }
+        } catch (Exception e) {
+            // Catch any unexpected errors during processing
+            AppConfig.timestampedErrorPrint("Unexpected error in UploadHandler for file " + relativeFilePath + ": " + e.getMessage());
+            e.printStackTrace();
+            // Attempt to send a generic failure message back to the original requester if possible
+            UploadResponseMessage response = new UploadResponseMessage(
+                    AppConfig.myServentInfo.getListenerPort(),
+                    originalRequesterActualPort,
+                    "FAIL:Unexpected error during upload of " + relativeFilePath
+            );
+            MessageUtil.sendMessage(response);
         }
     }
 }

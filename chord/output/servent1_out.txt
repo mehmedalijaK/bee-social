@@ -1,21 +1,66 @@
-14:37:41 - Starting servent [48|localhost|1200]
-14:37:41 - Pausing for 40000 ms
-14:37:42 - Sending message [48|1200|0||NEW_NODE|1100|28]
-14:37:43 - Got message [28|1100|0||WELCOME|1200|48]
-14:37:45 - Sending message [48|1200|1||UPDATE|1100|28]
-14:37:46 - Got message [48|1200|1|1100|UPDATE|1200|48]
-14:37:55 - Got message [4|1300|3|1100|UPDATE|1200|48]
-14:37:56 - Sending message [4|1300|2|1100,1200|UPDATE|1300|4]
-14:38:07 - Got message [24|1400|5|1100|UPDATE|1200|48]
-14:38:08 - Sending message [24|1400|3|1100,1200|UPDATE|1300|4]
-14:38:17 - Got message [0|1600|6|1300,1400,1100|UPDATE|1200|48]
-14:38:18 - Sending message [0|1600|4|1300,1400,1100,1200|UPDATE|1600|0]
-14:38:21 - Pausing for 5000 ms
-14:38:22 - Got message [28|1100|7|2:5|PUT|1200|48]
-14:38:23 - Sending message [48|1200|5|2:5|PUT|1600|0]
-14:38:26 - Please wait...
-14:38:26 - Pausing for 5000 ms
-14:38:27 - Sending message [48|1200|6|2|ASK_GET|1600|0]
-14:38:29 - Got message [4|1300|6|2:5|TELL_GET|1200|48]
-14:38:29 - 2:5
-14:38:31 - Stopping...
+17:47:11 - Servent 1 initialized WITHOUT Suzuki-Kasami token.
+17:47:11 - Starting servent [48|localhost|1200]
+17:47:11 - Pausing for 40000 ms
+17:47:12 - Sending message [48|1200|0||NEW_NODE|1100|28]
+17:47:13 - Got message [28|1100|0||WELCOME|1200|48]
+17:47:14 - Sending message [48|1200|1||UPDATE|1100|28]
+17:47:15 - Got message [4|1300|0||NEW_NODE|1200|48]
+17:47:15 - Got message [48|1200|1|1100|UPDATE|1200|48]
+17:47:15 - Sending message [48|1200|2||WELCOME|1300|4]
+17:47:16 - Got message [4|1300|1||UPDATE|1200|48]
+17:47:17 - Sending message [4|1300|3|1200|UPDATE|1300|4]
+17:47:18 - Got message [24|1400|0||NEW_NODE|1200|48]
+17:47:19 - Sending message [24|1400|4||NEW_NODE|1300|4]
+17:47:20 - Got message [24|1400|2||NEW_NODE|1200|48]
+17:47:21 - Got message [0|1600|0||NEW_NODE|1200|48]
+17:47:21 - Sending message [24|1400|5||NEW_NODE|1300|4]
+17:47:22 - Sending message [0|1600|6||NEW_NODE|1300|4]
+17:47:22 - Got message [24|1400|3||NEW_NODE|1200|48]
+17:47:23 - Sending message [24|1400|7||NEW_NODE|1300|4]
+17:47:24 - Got message [24|1400|5||NEW_NODE|1200|48]
+17:47:25 - Got message [0|1600|6|1300|UPDATE|1200|48]
+17:47:25 - Sending message [24|1400|8||NEW_NODE|1300|4]
+17:47:26 - Sending message [0|1600|9|1300,1200|UPDATE|1600|0]
+17:47:26 - Got message [24|1400|7||NEW_NODE|1200|48]
+17:47:27 - Sending message [24|1400|10||NEW_NODE|1600|0]
+17:47:28 - Got message [24|1400|8||NEW_NODE|1200|48]
+17:47:29 - Sending message [24|1400|11||NEW_NODE|1600|0]
+17:47:32 - Got message [24|1400|9||NEW_NODE|1200|48]
+17:47:33 - Sending message [24|1400|12||NEW_NODE|1600|0]
+17:47:35 - Got message [24|1400|10||NEW_NODE|1200|48]
+17:47:36 - Sending message [24|1400|13||NEW_NODE|1600|0]
+17:47:38 - Got message [24|1400|11||NEW_NODE|1200|48]
+17:47:39 - Sending message [24|1400|14||NEW_NODE|1600|0]
+17:47:41 - Got message [24|1400|12||NEW_NODE|1200|48]
+17:47:41 - Sending message [24|1400|15||NEW_NODE|1600|0]
+17:47:43 - Got message [24|1400|13||NEW_NODE|1200|48]
+17:47:45 - Sending message [24|1400|16||NEW_NODE|1600|0]
+17:47:46 - Got message [24|1400|15||NEW_NODE|1200|48]
+17:47:47 - Sending message [24|1400|17||NEW_NODE|1600|0]
+17:47:50 - Got message [24|1400|16||NEW_NODE|1200|48]
+17:47:51 - Sending message [24|1400|18||NEW_NODE|1600|0]
+17:47:51 - Attempting to acquire SK mutex for remove_file...
+17:47:51 - SK: Servent 1 requesting token with RN[1]=1
+17:47:51 - SK: Servent 1 broadcasting TOKEN_REQUEST with seq_num 1
+17:47:51 - SK: Servent 1 waiting for token...
+17:47:52 - Sending message [48|1200|19|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1100|28]
+17:47:52 - Sending message [48|1200|20|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1300|4]
+17:47:52 - Sending message [48|1200|22|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1600|0]
+17:47:52 - Sending message [48|1200|21|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1400|24]
+17:47:52 - Got message [28|1100|2|SK_TOKEN: LN=[0, 0, 0, 0, 0], Q=[]|SK_TOKEN|1200|48]
+17:47:52 - SK: Servent 1 received TOKEN. LN_token: [0, 0, 0, 0, 0], Q_token: []
+17:47:52 - SK: Servent 1 was waiting. Signaling token arrival.
+17:47:52 - SK: Servent 1 received token. Entering CS.
+17:47:52 - SK mutex acquired for remove_file.
+17:47:52 - Sent remove_file request for laptop.jpg
+17:47:52 - Visibility set to private
+17:47:52 - Pausing for 5000 ms
+17:47:53 - Got message [24|1400|17||NEW_NODE|1200|48]
+17:47:54 - Sending message [48|1200|23|REMOVE_REQ: origPort=1200, path=laptop.jpg|REMOVE_FILES|1600|0]
+17:47:54 - Sending message [24|1400|24||NEW_NODE|1600|0]
+17:47:55 - Got message [0|1600|11|OK:laptop.jpg|REMOVE_FILE_RESPONSE|1200|48]
+17:47:55 - Stigao REMOVE_FILE_RESPONSE: OK:laptop.jpg
+17:47:55 - Releasing SK mutex after remove_file response.
+17:47:55 - SK: Servent 1 released CS. LN_token[1]=1
+17:47:55 - SK: Servent 1 keeps token, queue is empty.
+17:47:57 - Stopping...

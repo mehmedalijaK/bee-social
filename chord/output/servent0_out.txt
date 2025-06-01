@@ -1,3 +1,22 @@
-09:43:20 - Starting servent [28|localhost|1100]
-09:43:20 - Pausing for 50000 ms
-09:43:20 - First node in Chord system.
+17:47:08 - Servent 0 initialized WITH Suzuki-Kasami token.
+17:47:08 - Starting servent [28|localhost|1100]
+17:47:08 - Pausing for 50000 ms
+17:47:08 - First node in Chord system.
+17:47:12 - Got message [48|1200|0||NEW_NODE|1100|28]
+17:47:13 - Sending message [28|1100|0||WELCOME|1200|48]
+17:47:14 - Got message [48|1200|1||UPDATE|1100|28]
+17:47:15 - Sending message [48|1200|1|1100|UPDATE|1200|48]
+17:47:52 - Got message [48|1200|19|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1100|28]
+17:47:52 - SK: Servent 0 received TOKEN_REQUEST from servent 1 with SN=1. Current RN: [0, 0, 0, 0, 0]
+17:47:52 - SK: Updated RN[1] to 1
+17:47:52 - SK: Servent 0 has token, not in CS, and request is next. Sending token to 1
+17:47:52 - SK: Sent TOKEN from servent 0 to servent 1. LN: [0, 0, 0, 0, 0], Q: []
+17:47:52 - Sending message [28|1100|2|SK_TOKEN: LN=[0, 0, 0, 0, 0], Q=[]|SK_TOKEN|1200|48]
+17:47:58 - Attempting to acquire SK mutex for upload...
+17:47:58 - SK: Servent 0 requesting token with RN[0]=1
+17:47:58 - SK: Servent 0 broadcasting TOKEN_REQUEST with seq_num 1
+17:47:58 - SK: Servent 0 waiting for token...
+17:47:58 - Sending message [28|1100|4|SK_REQ: id=0, sn=1|SK_TOKEN_REQUEST|1300|4]
+17:47:59 - Sending message [28|1100|5|SK_REQ: id=0, sn=1|SK_TOKEN_REQUEST|1400|24]
+17:47:59 - Sending message [28|1100|3|SK_REQ: id=0, sn=1|SK_TOKEN_REQUEST|1200|48]
+17:47:59 - Sending message [28|1100|6|SK_REQ: id=0, sn=1|SK_TOKEN_REQUEST|1600|0]

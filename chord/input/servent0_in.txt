@@ -1,4 +1,5 @@
 pause 50000
-dht_put 2 5
+upload laptop.jpg
+list_files localhost:1100
 pause 10000
 stop

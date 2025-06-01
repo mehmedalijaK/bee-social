@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Ova klasa implementira sav Chord state (successor table, predecessor, DHT vrednosti…)
@@ -37,9 +38,9 @@ public class ChordState {
 	/** Ako je true, profil je public i svako može tražiti listu fajlova. Ako je false, samo pratitelji. */
 	private boolean publicMode = true;
 	/** Lista serventa koja su dobila „follow“ odobrenje */
-	private List<ServentInfo> followers = new ArrayList<>();
+	private List<ServentInfo> followers = new CopyOnWriteArrayList<>();
 	/** Lista serventa koja su trenutno pending (poslali su follow zahtev, ali još nisu prihvaćeni) */
-	private List<ServentInfo> pendingFollowers = new ArrayList<>();
+	private List<ServentInfo> pendingFollowers = new CopyOnWriteArrayList<>();
 	// *******************************************************************
 
 	public ChordState() {

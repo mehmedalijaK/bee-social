@@ -28,7 +28,8 @@ public class RemoveFilesResponseHandler implements MessageHandler {
         String responseText = clientMessage.getMessageText().trim();
         AppConfig.timestampedStandardPrint("Stigao REMOVE_FILE_RESPONSE: " + responseText);
 
-        // Otključavamo distribuisani mutex jer je uklanjanje završeno
-        AppConfig.mutex.unlock();
+        // Release distributed mutex
+        AppConfig.timestampedStandardPrint("Releasing SK mutex after remove_file response.");
+        AppConfig.releaseCSEntry();
     }
 }

@@ -1,18 +1,42 @@
-14:38:11 - Starting servent [0|localhost|1600]
-14:38:11 - Pausing for 10000 ms
-14:38:12 - Sending message [0|1600|0||NEW_NODE|1300|4]
-14:38:13 - Got message [4|1300|4||WELCOME|1600|0]
-14:38:14 - Sending message [0|1600|1||UPDATE|1300|4]
-14:38:18 - Got message [0|1600|4|1300,1400,1100,1200|UPDATE|1600|0]
-14:38:21 - Pausing for 4000 ms
-14:38:22 - Sending message [0|1600|2|25:3|PUT|1400|24]
-14:38:23 - Got message [48|1200|5|2:5|PUT|1600|0]
-14:38:24 - Sending message [0|1600|3|2:5|PUT|1300|4]
-14:38:25 - Please wait...
-14:38:25 - Pausing for 6000 ms
-14:38:26 - Sending message [0|1600|4|25|ASK_GET|1400|24]
-14:38:27 - Got message [48|1200|6|2|ASK_GET|1600|0]
-14:38:28 - Sending message [48|1200|5|2|ASK_GET|1300|4]
-14:38:28 - Got message [28|1100|8|25:3|TELL_GET|1600|0]
-14:38:28 - 25:3
-14:38:31 - Stopping...
+17:47:20 - Servent 4 initialized WITHOUT Suzuki-Kasami token.
+17:47:20 - Starting servent [0|localhost|1600]
+17:47:20 - Pausing for 50000 ms
+17:47:21 - Sending message [0|1600|0||NEW_NODE|1200|48]
+17:47:23 - Got message [4|1300|4||WELCOME|1600|0]
+17:47:24 - Sending message [0|1600|1||UPDATE|1300|4]
+17:47:26 - Got message [0|1600|9|1300,1200|UPDATE|1600|0]
+17:47:27 - Got message [24|1400|10||NEW_NODE|1600|0]
+17:47:28 - Sending message [24|1400|2||NEW_NODE|1300|4]
+17:47:29 - Got message [24|1400|11||NEW_NODE|1600|0]
+17:47:30 - Sending message [24|1400|3||NEW_NODE|1300|4]
+17:47:33 - Got message [24|1400|12||NEW_NODE|1600|0]
+17:47:34 - Sending message [24|1400|4||NEW_NODE|1300|4]
+17:47:36 - Got message [24|1400|13||NEW_NODE|1600|0]
+17:47:37 - Sending message [24|1400|5||NEW_NODE|1300|4]
+17:47:39 - Got message [24|1400|14||NEW_NODE|1600|0]
+17:47:40 - Sending message [24|1400|6||NEW_NODE|1300|4]
+17:47:41 - Got message [24|1400|15||NEW_NODE|1600|0]
+17:47:43 - Sending message [24|1400|7||NEW_NODE|1300|4]
+17:47:45 - Got message [24|1400|16||NEW_NODE|1600|0]
+17:47:45 - Sending message [24|1400|8||NEW_NODE|1300|4]
+17:47:47 - Got message [24|1400|17||NEW_NODE|1600|0]
+17:47:48 - Sending message [24|1400|9||NEW_NODE|1300|4]
+17:47:51 - Got message [24|1400|18||NEW_NODE|1600|0]
+17:47:52 - Sending message [24|1400|10||NEW_NODE|1300|4]
+17:47:52 - Got message [48|1200|22|SK_REQ: id=1, sn=1|SK_TOKEN_REQUEST|1600|0]
+17:47:52 - SK: Servent 4 received TOKEN_REQUEST from servent 1 with SN=1. Current RN: [0, 0, 0, 0, 0]
+17:47:52 - SK: Updated RN[1] to 1
+17:47:52 - SK: Servent 4 will not send token now. hasToken=false, inCS=false, RN[1]=1, LN_token[1]=0
+17:47:54 - Got message [48|1200|23|REMOVE_REQ: origPort=1200, path=laptop.jpg|REMOVE_FILES|1600|0]
+17:47:54 - Servent 0 is responsible for file "laptop.jpg" (key=-39). Attempting to remove.
+17:47:54 - Successfully removed file: /Users/mehmedalijakarisik/Education/racunarski-fakultet/8-semestar/kids/project/bee-social/storage/laptop.jpg
+17:47:54 - Simulating trigger removal of replica laptop.jpg from successor: [4|localhost|1300]
+17:47:54 - Simulating trigger removal of replica laptop.jpg from predecessor: [48|localhost|1200]
+17:47:54 - Got message [24|1400|24||NEW_NODE|1600|0]
+17:47:55 - Sending message [0|1600|11|OK:laptop.jpg|REMOVE_FILE_RESPONSE|1200|48]
+17:47:55 - Sending message [24|1400|12||NEW_NODE|1300|4]
+17:47:59 - Got message [28|1100|6|SK_REQ: id=0, sn=1|SK_TOKEN_REQUEST|1600|0]
+17:47:59 - SK: Servent 4 received TOKEN_REQUEST from servent 0 with SN=1. Current RN: [0, 1, 0, 0, 0]
+17:47:59 - SK: Updated RN[0] to 1
+17:47:59 - SK: Servent 4 will not send token now. hasToken=false, inCS=false, RN[0]=1, LN_token[0]=0
+17:48:10 - Stopping...

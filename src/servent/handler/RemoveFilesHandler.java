@@ -21,79 +21,106 @@ public class RemoveFilesHandler implements MessageHandler {
 
     @Override
     public void run() {
-        // 1) Proverimo da li je tip poruke REMOVE_FILES
         if (clientMessage.getMessageType() != MessageType.REMOVE_FILES) {
             AppConfig.timestampedErrorPrint("REMOVE_FILES handler got something that is not REMOVE_FILES.");
             return;
         }
 
-        // 2) Izvucemo port onoga ko je poslao zahtev
-        int requesterPort = clientMessage.getSenderPort();
+        // Cast to the correct message type to access specific fields
+        RemoveFileMessage currentRemoveMsg = (RemoveFileMessage) clientMessage;
+        int originalRequesterActualPort = currentRemoveMsg.getOriginalRequesterPort();
+        String relativeFilePath = currentRemoveMsg.getFilePath();
 
-        // Napomena: pretpostavljamo "localhost" za interne poruke
-        ServentInfo requesterInfo = new ServentInfo("localhost", requesterPort);
+        // Local mutex is removed. Distributed Suzuki-Kasami mutex is handled by the original requester.
 
-        // 3) Poruka nosi relativnu putanju fajla za brisanje (npr. "photos/vacation.jpg")
-        String relativeFilePath = clientMessage.getMessageText().trim();
+        try {
+            // Calculate Chord key based on the relative file path
+            int key = ChordState.chordHash(relativeFilePath.hashCode());
+            boolean iStoreIt = AppConfig.chordState.isKeyMine(key);
 
-        // 4) Izracunamo Chord ključ za ovu putanju fajla
-        int key = ChordState.chordHash(relativeFilePath.hashCode());
-
-        // 5) Proverimo da li je OVAJ cvor odgovoran za brisanje fajla s tim ključem
-        boolean iStoreIt = AppConfig.chordState.isKeyMine(key);
-
-        if (iStoreIt) {
-            // ─── Mi smo nod odgovoran za taj ključ ───
-
-            // 6) Zakljucavamo lokalni mutex pre ulaska u kriticnu sekciju
-            AppConfig.mutex.lock();
-            try {
-                // 6a) Pokusamo da izbrisemo fajl iz radnog direktorijuma
-                File targetFile = new File(AppConfig.workingDirectory + File.separator + relativeFilePath);
-                boolean deleted = false;
-                if (targetFile.exists()) {
-                    deleted = targetFile.delete();
-                }
+            if (iStoreIt) {
+                // This node is responsible for the file
                 AppConfig.timestampedStandardPrint(
-                        "Removing file \"" + relativeFilePath + "\" locally (key=" + key + "): " +
-                                (deleted ? "SUCCESS" : "NOT FOUND")
+                        "Servent " + AppConfig.myServentInfo.getChordId() + " is responsible for file \"" +
+                                relativeFilePath + "\" (key=" + key + "). Attempting to remove."
                 );
 
-                // 6b) (Opcionalno) Slanje poruka nasljedniku i prethodniku da se obrise replika fajla
-                //     U punoj implementaciji, ovde biste kreirali ReplicaRemoveMessage za successor i predecessor
-                //     i poslali ih putem MessageUtil.sendMessage(...).
+                // Simulate actual file removal from servent-specific directory
+                File serventDir = new File(AppConfig.workingDirectory);
+                File targetFile = new File(serventDir, relativeFilePath); // Look inside servent-specific dir
 
-                // 6c) Kada je brisanje (i eventualne replike) obavljeno, saljemo odgovor originalnom zahtevacu
-                String payload = (deleted ? "OK:" : "FAIL:") + relativeFilePath;
-                Message response = new RemoveFilesResponseMessage(
+                boolean deleted = false;
+                String deleteStatusMessage;
+
+                if (targetFile.exists()) {
+                    if (targetFile.delete()) {
+                        deleted = true;
+                        deleteStatusMessage = "Successfully removed file: " + targetFile.getAbsolutePath();
+                    } else {
+                        deleteStatusMessage = "Failed to remove file (delete operation failed): " + targetFile.getAbsolutePath();
+                    }
+                } else {
+                    deleteStatusMessage = "File not found for removal: " + targetFile.getAbsolutePath();
+                    // Depending on requirements, not finding a file might still be an "OK" for removal
+                    // or it could be a specific type of failure/warning.
+                    // For now, we'll consider it "not found or failed" for the response.
+                }
+                AppConfig.timestampedStandardPrint(deleteStatusMessage);
+
+
+                if (deleted) {
+                    // Simulate triggering removal of replicas from successor and predecessor
+                    // TODO: Implement actual replication removal message sending
+                    ServentInfo successor = AppConfig.chordState.getSuccessorTable()[0];
+                    ServentInfo predecessor = AppConfig.chordState.getPredecessor();
+
+                    if (successor != null && successor.getChordId() != AppConfig.myServentInfo.getChordId()) {
+                        AppConfig.timestampedStandardPrint("Simulating trigger removal of replica " + relativeFilePath + " from successor: " + successor);
+                    }
+                    if (predecessor != null && predecessor.getChordId() != AppConfig.myServentInfo.getChordId()) {
+                        AppConfig.timestampedStandardPrint("Simulating trigger removal of replica " + relativeFilePath + " from predecessor: " + predecessor);
+                    }
+                }
+
+                // Send response back to the original requester
+                String responsePayload = (deleted ? "OK:" : "FAIL:") + relativeFilePath;
+                RemoveFilesResponseMessage response = new RemoveFilesResponseMessage(
                         MessageType.REMOVE_FILE_RESPONSE,
-                        AppConfig.myServentInfo.getListenerPort(), // sender = ovaj nod
-                        requesterPort,                             // receiver = originalni zahtevac
-                        payload
+                        AppConfig.myServentInfo.getListenerPort(),
+                        originalRequesterActualPort, // Send response to the original requester
+                        responsePayload
                 );
                 MessageUtil.sendMessage(response);
 
-            } finally {
-                // 6d) Otkljucavamo mutex nakon zavrsetka obrade
-                AppConfig.mutex.unlock();
+            } else {
+                // This node is NOT responsible, forward the request
+                ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(key);
+                AppConfig.timestampedStandardPrint(
+                        "Servent " + AppConfig.myServentInfo.getChordId() + " is NOT responsible for file \"" +
+                                relativeFilePath + "\" (key=" + key + "). Forwarding to " + nextNode
+                );
+
+                // Use the correct constructor for RemoveFileMessage to propagate original requester info
+                RemoveFileMessage forwardMsg = new RemoveFileMessage(
+                        AppConfig.myServentInfo.getListenerPort(),   // Current node is sender of this forwarded message
+                        nextNode.getListenerPort(),                  // Target is the next node
+                        originalRequesterActualPort,                 // Propagate original requester's port
+                        relativeFilePath                             // Propagate the file path
+                );
+                MessageUtil.sendMessage(forwardMsg);
             }
-        } else {
-            // ─── Nismo odgovorni za taj ključ: prosledjujemo zahtev dalje ───
-
-            // 7a) Nalazimo sledeci nod u Chord prstenu koji je blizi kljucu
-            ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(key);
-
-            // 7b) Prosledjujemo novi RemoveFileMessage na sledeci nod
-            Message forwardMsg = new RemoveFileMessage(
-                    MessageType.REMOVE_FILES,                   // tip poruke
-                    AppConfig.myServentInfo.getListenerPort(),  // sada ja stajem u ulogu posiljaoca
-                    nextNode.getListenerPort(),                 // prosledjujem ka sledecem nodu
-                    relativeFilePath                            // isti payload (putanja fajla)
+        } catch (Exception e) {
+            // Catch any unexpected errors during processing
+            AppConfig.timestampedErrorPrint("Unexpected error in RemoveFilesHandler for file " + relativeFilePath + ": " + e.getMessage());
+            e.printStackTrace();
+            // Attempt to send a generic failure message back to the original requester if possible
+            RemoveFilesResponseMessage response = new RemoveFilesResponseMessage(
+                    MessageType.REMOVE_FILE_RESPONSE,
+                    AppConfig.myServentInfo.getListenerPort(),
+                    originalRequesterActualPort,
+                    "FAIL:Unexpected error during removal of " + relativeFilePath
             );
-            MessageUtil.sendMessage(forwardMsg);
-
-            // 7c) Ne otkljucavamo ovde mutex, jer nismo niti zakljucali — samo forwardujemo
-            return;
+            MessageUtil.sendMessage(response);
         }
     }
 }
