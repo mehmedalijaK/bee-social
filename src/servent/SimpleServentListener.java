@@ -9,15 +9,7 @@ import java.util.concurrent.Executors;
 
 import app.AppConfig;
 import app.Cancellable;
-import servent.handler.AskGetHandler;
-import servent.handler.MessageHandler;
-import servent.handler.NewNodeHandler;
-import servent.handler.NullHandler;
-import servent.handler.PutHandler;
-import servent.handler.SorryHandler;
-import servent.handler.TellGetHandler;
-import servent.handler.UpdateHandler;
-import servent.handler.WelcomeHandler;
+import servent.handler.*;
 import servent.message.Message;
 import servent.message.util.MessageUtil;
 
@@ -88,8 +80,48 @@ public class SimpleServentListener implements Runnable, Cancellable {
 					messageHandler = new TellGetHandler(clientMessage);
 					break;
 				case POISON:
+					messageHandler = new NullHandler(clientMessage);
 					break;
-				}
+				case FOLLOW:
+					messageHandler = new FollowHandler(clientMessage);
+					break;
+				case PENDING:
+					messageHandler = new PendingHandler(clientMessage);
+					break;
+				case ACCEPT:
+					messageHandler = new AcceptHandler(clientMessage);
+					break;
+				case UPLOAD:
+					messageHandler = new UploadHandler(clientMessage);
+					break;
+				case VISIBILITY:
+					messageHandler = new VisibilityHandler(clientMessage);
+					break;
+				case LIST_FILES:
+					messageHandler = new ListFilesHandler(clientMessage);
+					break;
+				case REMOVE_FILES:
+					messageHandler = new RemoveFilesHandler(clientMessage);
+					break;
+				case LIST_FILES_RESPONSE:
+					messageHandler = new ListFilesResponseHandler(clientMessage);
+					break;
+				case STOP:
+					messageHandler = new StopHandler(clientMessage);
+					break;
+				case UPLOAD_RESPONSE:
+					messageHandler = new UploadResponseHandler(clientMessage);
+                        break;
+				case LEAVE:
+					messageHandler = new LeaveHandler(clientMessage);
+                        break;
+				case REMOVE_FILE_RESPONSE:
+					messageHandler = new RemoveFilesResponseHandler(clientMessage);
+                        break;
+				default:
+					break;
+                }
+
 				
 				threadPool.submit(messageHandler);
 			} catch (SocketTimeoutException timeoutEx) {
